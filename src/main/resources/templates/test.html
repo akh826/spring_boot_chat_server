@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <style>
+      .iframe-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      .iframe-grid iframe {
+        width: 100%;
+        height: 400px;
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <th:block th:replace="~{TopNav.html}"></th:block>
+    <div
+      id="deviceType"
+      style="font-size: 18px; font-weight: bold; margin-bottom: 16px"
+    ></div>
+    <div
+      id="test"
+      style="font-size: 18px; font-weight: bold; margin-bottom: 16px"
+    ></div>
+    <button
+      id="installBtn"
+      style="
+        margin-bottom: 20px;
+        padding: 8px 16px;
+        font-size: 16px;
+        border-radius: 4px;
+        border: none;
+        background: #007bff;
+        color: #fff;
+        cursor: pointer;
+        display: inline-block;
+      "
+    >
+      Save to Home Screen
+    </button>
+    <div class="iframe-grid">
+      <iframe src="/chat"></iframe>
+      <iframe src="/chat"></iframe>
+    </div>
+    <script>
+      function getDeviceType() {
+        const ua = navigator.userAgent || navigator.vendor || window.opera;
+        if (/android/i.test(ua)) return "Android";
+        if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) return "iPhone";
+        if (/Win/i.test(ua)) return "Windows";
+        if (/Linux/i.test(ua)) return "Linux";
+        return "Other";
+      }
+
+      // Show device type on top
+      const device = getDeviceType();
+      document.getElementById("deviceType").textContent =
+        "Device type: " + device;
+
+      // PWA install prompt
+      let deferredPrompt;
+      const installBtn = document.getElementById("installBtn");
+      window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = "inline-block";
+      });
+
+      if (device === "iPhone") {
+        document.getElementById("installBtn").style.display = "none";
+        // Optionally show instructions
+        const msg = document.createElement("div");
+        msg.style.color = "#007bff";
+        msg.style.marginBottom = "16px";
+        msg.textContent =
+          "On iPhone, tap the Share button in Safari and choose 'Add to Home Screen' to install.";
+        document.getElementById("deviceType").after(msg);
+      } else if (device === "Android") {
+        installBtn.style.display = "inline-block";
+        installBtn.addEventListener("click", async () => {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === "accepted") {
+              installBtn.style.display = "none";
+            }
+            deferredPrompt = null;
+          } else {
+            const warningmsg =
+              "Install prompt not available. Make sure your browser supports PWA and this site meets PWA requirements.";
+            document.getElementById("test").textContent = warningmsg;
+            alert(warningmsg);
+          }
+        });
+      } else {
+        installBtn.style.display = "none";
+        // Optionally show instructions for other devices
+        const msg = document.createElement("div");
+        msg.style.color = "#007bff";
+        msg.style.marginBottom = "16px";
+        msg.textContent =
+          "To install this app, use the browser's install feature if available.";
+        document.getElementById("deviceType").after(msg);
+      }
+    </script>
+  </body>
+</html>

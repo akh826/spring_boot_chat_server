@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Settings</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        margin: 0;
+        padding: 10px;
+      }
+      .setting-container {
+        background: #fff;
+        border-radius: 8px;
+        margin: 10px auto;
+        padding: 32px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+      .setting-container label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+      }
+      .setting-container input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-bottom: 16px;
+      }
+      .setting-container button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        background: #007bff;
+        color: #fff;
+        cursor: pointer;
+      }
+      .setting-container button:active {
+        background: #0056b3;
+      }
+      .status {
+        margin-top: 10px;
+        color: #28a745;
+        font-size: 14px;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="setting-container">
+      <label for="apiKeyInput">DeepSeek API Key</label>
+      <input
+        id="apiKeyInput"
+        type="password"
+        placeholder="Enter your DeepSeek API Key"
+      />
+      <button id="saveApiKeyBtn">Save Key</button>
+      <button id="clearApiKeyBtn" style="margin-left: 8px; background: #dc3545">
+        Clear Key
+      </button>
+      <hr style="margin: 24px 0" />
+      <label for="systemPromptInput">System Prompt (Default)</label>
+      <textarea
+        id="systemPromptInput"
+        placeholder="Set a default system prompt for DeepSeek chat"
+        rows="3"
+        style="
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          margin-bottom: 8px;
+        "
+      ></textarea>
+      <button id="saveSystemPromptBtn" style="margin-right: 8px">
+        Save Prompt
+      </button>
+      <button id="clearSystemPromptBtn" style="background: #dc3545">
+        Clear Prompt
+      </button>
+      <div
+        class="status"
+        id="systemPromptStatus"
+        style="color: #28a745; display: none"
+      >
+        Saved!
+      </div>
+      <div class="status" id="statusMsg">Saved!</div>
+    </div>
+    <script>
+      const apiKeyInput = document.getElementById("apiKeyInput");
+      const saveApiKeyBtn = document.getElementById("saveApiKeyBtn");
+      const clearApiKeyBtn = document.getElementById("clearApiKeyBtn");
+      const statusMsg = document.getElementById("statusMsg");
+
+      // System prompt elements
+      const systemPromptInput = document.getElementById("systemPromptInput");
+      const saveSystemPromptBtn = document.getElementById(
+        "saveSystemPromptBtn"
+      );
+      const clearSystemPromptBtn = document.getElementById(
+        "clearSystemPromptBtn"
+      );
+      const systemPromptStatus = document.getElementById("systemPromptStatus");
+
+      // Load API key from localStorage if present
+      const storedKey = localStorage.getItem("deepseek_api_key");
+      if (storedKey) {
+        apiKeyInput.value = storedKey;
+      }
+
+      // Load system prompt from localStorage if present
+      const storedPrompt = localStorage.getItem("deepseek_system_prompt");
+      if (storedPrompt) {
+        systemPromptInput.value = storedPrompt;
+      }
+
+      saveApiKeyBtn.onclick = function () {
+        localStorage.setItem("deepseek_api_key", apiKeyInput.value);
+        statusMsg.textContent = "Saved!";
+        statusMsg.style.color = "#28a745";
+        statusMsg.style.display = "block";
+        setTimeout(() => {
+          statusMsg.style.display = "none";
+        }, 1200);
+      };
+      clearApiKeyBtn.onclick = function () {
+        localStorage.removeItem("deepseek_api_key");
+        apiKeyInput.value = "";
+        statusMsg.textContent = "Cleared!";
+        statusMsg.style.color = "#dc3545";
+        statusMsg.style.display = "block";
+        setTimeout(() => {
+          statusMsg.style.display = "none";
+        }, 1200);
+      };
+
+      saveSystemPromptBtn.onclick = function () {
+        localStorage.setItem("deepseek_system_prompt", systemPromptInput.value);
+        systemPromptStatus.textContent = "Saved!";
+        systemPromptStatus.style.color = "#28a745";
+        systemPromptStatus.style.display = "block";
+        setTimeout(() => {
+          systemPromptStatus.style.display = "none";
+        }, 1200);
+      };
+      clearSystemPromptBtn.onclick = function () {
+        localStorage.removeItem("deepseek_system_prompt");
+        systemPromptInput.value = "";
+        systemPromptStatus.textContent = "Cleared!";
+        systemPromptStatus.style.color = "#dc3545";
+        systemPromptStatus.style.display = "block";
+        setTimeout(() => {
+          systemPromptStatus.style.display = "none";
+        }, 1200);
+      };
+    </script>
+  </body>
+</html>

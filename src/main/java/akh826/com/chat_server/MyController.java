@@ -28,19 +28,23 @@ public class MyController implements ErrorController {
     @GetMapping("/chat")
     public String chat(Model model) {
         model.addAttribute("ModelName", "Deepseek");
-
         return "chat";
     }
 
-    // @GetMapping("/test")
-    // @ResponseBody
-    // public Map<String, String> test() {
-    // String apiKey = System.getenv("DEEPSEEK_API_KEY");
-    // if (apiKey == null) {
-    // apiKey = "";
-    // }
-    // return Map.of("apiKey", apiKey);
-    // }
+    @GetMapping("/aboutus")
+    public String contactus(Model model) {
+        return "aboutus";
+    }
+
+    @GetMapping("/settings")
+    public String settings(Model model) {
+        return "settings";
+    }
+
+    @GetMapping("/test")
+    public String test(Model model) {
+        return "test";
+    }
 
     // raw json body example:
     // { "history":[ { "role": "user", "content": "hello" }]}
@@ -48,7 +52,11 @@ public class MyController implements ErrorController {
     @ResponseBody
     public Map<String, String> postChat(@RequestBody Map<String, Object> payload) {
         // post to deepseek
-        String apiKey = System.getenv("DEEPSEEK_API_KEY");
+        String apiKey = (String) payload.get("deepseek_api_key");
+        if (apiKey == null || apiKey.isEmpty()) {
+            return Map.of("reply", "API key is not set. Please set the DeepSeek API Key in settings.");
+        }
+
         String apiUrl = "https://api.deepseek.com/chat/completions";
 
         // Prepare headers
