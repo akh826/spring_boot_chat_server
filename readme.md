@@ -1,21 +1,173 @@
 # Spring Boot Chat Server
 
-**Build:**
+A Simple Springboot chat server
 
-1. Deploy to AWS Elastic Beanstalk (Recommended for Most Users)
-   Steps:
+---
 
-Package your app:
-Build your Spring Boot app as a JAR file:
+## Deploy to AWS Lightsail
+
+### 1. 准备环境
+
+- 安装 JDK
+
+  ```sh
+  sudo apt update
+  sudo apt install openjdk-17-jdk   # 根据项目需求选择版本（如 11/17）
+  java -version                     # 验证安装
+  ```
+
+- 安装 MySQL（可选，如需数据库）
+
+  ```sh
+  sudo apt install mysql-server
+  sudo mysql_secure_installation    # 安全配置
+  ```
+
+- 安装 Nginx（反向代理）
+
+  ```sh
+  sudo apt install nginx
+  sudo systemctl start nginx
+  ```
+
+---
+
+### 2. 打包 Spring Boot 应用
+
+在本地开发环境生成可执行 JAR：
+
+- Maven 项目
+
+  ```sh
+  mvn clean package
+  ```
+
+- Gradle 项目
+
+  ```sh
+  gradle bootJar
+  ```
+
+生成的 JAR 通常在 `target/` 或 `build/libs/` 目录下。
+
+---
+
+### 3. 上传文件到服务器
+
+使用 SCP 或 SFTP 工具上传 JAR 文件：
+
+```sh
+scp -i "pem-key" "path-to-your-app.jar" user@your-server-ip:"destination-path"
+```
+
+---
+
+### 4. 服务器端配置
+
+- 创建服务用户（可选）
+
+  ```sh
+  sudo adduser springbootuser
+  sudo usermod -aG sudo springbootuser   # 授予 sudo 权限（按需）
+  ```
+
+- 创建 Systemd 服务（管理应用进程）
+
+  创建服务文件：
+
+  ```sh
+  sudo nano /etc/systemd/system/springboot.service
+  ```
+
+  内容示例：
+
+  ```
+  [Unit]
+  Description=Spring Boot App
+  After=syslog.target
+
+  [Service]
+  User=springbootuser
+  ExecStart=/usr/bin/java -jar /home/springbootuser/app/your-app.jar
+  SuccessExitStatus=143
+  Restart=always
+
+  [Install]
+  WantedBy=multi-user.target
+  ```
+
+- 启动服务：
+
+  ```sh
+  sudo systemctl daemon-reload
+  sudo systemctl start springboot
+  sudo systemctl enable springboot   # 开机自启
+  ```
+
+---
+
+### 5. 配置 Nginx 反向代理
+
+编辑 Nginx 配置：
+
+```sh
+sudo nano /etc/nginx/sites-available/your-domain
+```
+
+内容示例：
 
 ```
-./mvnw clean package
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    location / {
+        proxy_pass http://localhost:8080;  # Spring Boot默认端口
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
 ```
 
-Login to AWS Console and go to Elastic Beanstalk.
+启用配置并测试：
 
-Create a new application and choose "Java" as the platform.
+```sh
+sudo ln -s /etc/nginx/sites-available/your-domain /etc/nginx/sites-enabled/
+sudo nginx -t        # 测试语法
+sudo systemctl restart nginx
+```
 
-Upload your JAR file (found in target/your-app.jar).
+---
 
-Deploy. Elastic Beanstalk will handle the server setup for you.
+### 6. 配置防火墙
+
+允许 HTTP/HTTPS 和 SSH：
+
+```sh
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw allow 22/tcp
+sudo ufw enable
+```
+
+---
+
+### 7. 验证部署
+
+- 访问 `http://your-server-ip` 查看应用。
+- 检查日志：
+
+  ```sh
+  journalctl -u springboot -f   # 实时日志
+  ```
+
+---
+
+### 常见问题
+
+- **端口冲突**：确保 Spring Boot 的 `server.port` 与 Nginx 配置一致。
+- **数据库连接**：检查 `application.properties` 中的数据库 URL、用户名和密码。
+- **权限问题**：确保 JAR 文件和目录有正确权限（`chmod +x`）。
+- **HTTPS**：如需 HTTPS，可使用 Let's Encrypt 证书（通过 Certbot 工具）。
+
+---

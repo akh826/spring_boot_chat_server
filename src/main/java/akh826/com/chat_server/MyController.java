@@ -19,12 +19,14 @@ import org.springframework.ui.Model;
 
 import org.springframework.http.*;
 
-import org.springframework.boot.web.servlet.error.ErrorController;
+// import org.springframework.boot.web.servlet.error.ErrorController;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 
-public class MyController implements ErrorController {
+// public class MyController implements ErrorController {
+
+public class MyController {
     @GetMapping("/chat")
     public String chat(Model model) {
         model.addAttribute("ModelName", "Deepseek");
@@ -93,14 +95,15 @@ public class MyController implements ErrorController {
         }
     }
 
-    @RequestMapping("/error")
-    public String handleError(HttpServletRequest request) {
-        Integer statusCode = (Integer) request.getAttribute("jakarta.servlet.error.status_code");
-        if (statusCode != null && statusCode == 404) {
-            return "redirect:/chat";
-        }
-        // Optionally handle other errors
-        return "error";
-    }
+    // @RequestMapping("/error")
+    // public String handleError(HttpServletRequest request) {
+    // Integer statusCode = (Integer)
+    // request.getAttribute("jakarta.servlet.error.status_code");
+    // if (statusCode != null && statusCode == 404) {
+    // return "redirect:/chat";
+    // }
+    // // Optionally handle other errors
+    // return "error";
+    // }
 
 }
