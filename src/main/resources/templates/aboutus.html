@@ -2,47 +2,52 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>About Us</title>
+    <link rel="stylesheet" href="/css/general.css" />
+    <link rel="stylesheet" href="/css/navigation.css" />
+    <link rel="stylesheet" href="/css/aboutus.css" />
   </head>
   <body>
     <th:block th:replace="~{TopNav.html}"></th:block>
 
-    <div style="max-width: 700px; margin: 40px auto; font-size: 18px">
-      <p>
-        Hello! I'm <strong>akh826</strong>, the creator of this Spring Boot Chat
-        Server project.<br />
-        This project demonstrates a simple, modern chat application using Java
-        Spring Boot for the backend and a responsive frontend.<br />
-        Feel free to explore, contribute, or use it as a starting point for your
-        own chat solutions!
-      </p>
-      <p>
-        Contact me:
-        <a
-          href="mailto:aukamhei@gmail.com"
-          style="color: #007bff; text-decoration: underline"
-        >
-          aukamhei@gmail.com
-        </a>
-      </p>
-      <p>
-        View this project on GitHub:<br />
-        <a
-          href="https://github.com/akh826/spring_boot_chat_server"
-          target="_blank"
-          style="color: #007bff; text-decoration: underline"
-        >
-          https://github.com/akh826/spring_boot_chat_server
-        </a>
-      </p>
-      <div style="margin-top: 16px; text-align: center">
-        <img
-          src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://github.com/akh826/spring_boot_chat_server"
-          alt="GitHub QR Code"
-          style="width: 150px; height: 150px"
-        />
-        <div style="font-size: 14px; color: #555; margin-top: 4px">
-          Scan to open GitHub
+    <div class="content-wrapper">
+      <div class="about-container">
+        <p>
+          Hello! I'm <strong>akh826</strong>, the creator of this Spring Boot Chat
+          Server project.<br />
+          This project demonstrates a simple, modern chat application using Java
+          Spring Boot for the backend and a responsive frontend.<br />
+          Feel free to explore, contribute, or use it as a starting point for your
+          own chat solutions!
+        </p>
+        <p>
+          Contact me:
+          <a href="mailto:aukamhei@gmail.com" class="contact-link">
+            aukamhei@gmail.com
+          </a>
+        </p>
+        <div class="github-section">
+          <p>
+            View this project on GitHub:<br />
+            <a
+              href="https://github.com/akh826/spring_boot_chat_server"
+              target="_blank"
+              class="github-link"
+            >
+              https://github.com/akh826/spring_boot_chat_server
+            </a>
+          </p>
+        </div>
+        <div class="qr-section">
+          <img
+            src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://github.com/akh826/spring_boot_chat_server"
+            alt="GitHub QR Code"
+            class="qr-code"
+          />
+          <div class="qr-caption">
+            Scan to open GitHub
+          </div>
         </div>
       </div>
     </div>

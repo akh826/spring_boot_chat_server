@@ -1,0 +1,80 @@
+/* ===== TOP NAVIGATION COMPONENT STYLES ===== */
+
+.top-nav {
+    width: 100%;
+    background: #007bff;
+    padding: 12px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.nav-container {
+    margin: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-brand {
+    color: #fff;
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 2px;
+    text-decoration: none;
+}
+
+.nav-brand:hover {
+    color: #fff;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-link {
+    color: #fff;
+    text-decoration: none;
+    margin-right: 24px;
+    font-size: 16px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    text-decoration: none;
+}
+
+.nav-link:last-child {
+    margin-right: 0;
+}
+
+/* Mobile Navigation */
+@media (max-width: 768px) {
+    .nav-container {
+        margin: 0 15px;
+    }
+
+    .nav-brand {
+        font-size: 18px;
+    }
+
+    .nav-links {
+        gap: 4px;
+    }
+
+    .nav-link {
+        font-size: 14px;
+        margin-right: 12px;
+        padding: 6px 8px;
+    }
+}

@@ -2,92 +2,47 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Settings</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background: #f4f4f4;
-        margin: 0;
-        padding: 10px;
-      }
-      .setting-container {
-        background: #fff;
-        border-radius: 8px;
-        margin: 10px auto;
-        padding: 32px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-      }
-      .setting-container label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: bold;
-      }
-      .setting-container input[type="password"] {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        margin-bottom: 16px;
-      }
-      .setting-container button {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 4px;
-        background: #007bff;
-        color: #fff;
-        cursor: pointer;
-      }
-      .setting-container button:active {
-        background: #0056b3;
-      }
-      .status {
-        margin-top: 10px;
-        color: #28a745;
-        font-size: 14px;
-        display: none;
-      }
-    </style>
+    <link rel="stylesheet" href="/css/general.css" />
+    <link rel="stylesheet" href="/css/navigation.css" />
+    <link rel="stylesheet" href="/css/settings.css" />
   </head>
   <body>
-    <div class="setting-container">
-      <label for="apiKeyInput">DeepSeek API Key</label>
-      <input
-        id="apiKeyInput"
-        type="password"
-        placeholder="Enter your DeepSeek API Key"
-      />
-      <button id="saveApiKeyBtn">Save Key</button>
-      <button id="clearApiKeyBtn" style="margin-left: 8px; background: #dc3545">
-        Clear Key
-      </button>
-      <hr style="margin: 24px 0" />
-      <label for="systemPromptInput">System Prompt (Default)</label>
-      <textarea
-        id="systemPromptInput"
-        placeholder="Set a default system prompt for DeepSeek chat"
-        rows="3"
-        style="
-          width: 100%;
-          padding: 10px;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-          margin-bottom: 8px;
-        "
-      ></textarea>
-      <button id="saveSystemPromptBtn" style="margin-right: 8px">
-        Save Prompt
-      </button>
-      <button id="clearSystemPromptBtn" style="background: #dc3545">
-        Clear Prompt
-      </button>
-      <div
-        class="status"
-        id="systemPromptStatus"
-        style="color: #28a745; display: none"
-      >
-        Saved!
+    <th:block th:replace="~{TopNav.html}"></th:block>
+    
+    <div class="content-wrapper">
+      <div class="setting-container">
+        <div class="setting-section">
+          <label for="apiKeyInput">DeepSeek API Key</label>
+          <input
+            id="apiKeyInput"
+            type="password"
+            placeholder="Enter your DeepSeek API Key"
+          />
+          <div class="btn-group">
+            <button id="saveApiKeyBtn" class="btn">Save Key</button>
+            <button id="clearApiKeyBtn" class="btn btn-danger">Clear Key</button>
+          </div>
+          <div class="setting-status" id="statusMsg">Saved!</div>
+        </div>
+
+        <hr class="setting-divider" />
+
+        <div class="setting-section">
+          <label for="systemPromptInput">System Prompt (Default)</label>
+          <textarea
+            id="systemPromptInput"
+            placeholder="Set a default system prompt for DeepSeek chat"
+            rows="3"
+          ></textarea>
+          <div class="btn-group">
+            <button id="saveSystemPromptBtn" class="btn">Save Prompt</button>
+            <button id="clearSystemPromptBtn" class="btn btn-danger">Clear Prompt</button>
+          </div>
+          <div class="setting-status" id="systemPromptStatus">Saved!</div>
+        </div>
       </div>
-      <div class="status" id="statusMsg">Saved!</div>
     </div>
     <script>
       const apiKeyInput = document.getElementById("apiKeyInput");
