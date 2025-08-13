@@ -14,32 +14,43 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.ui.Model;
 
 import org.springframework.http.*;
 
 // import org.springframework.boot.web.servlet.error.ErrorController;
-import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 
 // public class MyController implements ErrorController {
 
 public class MyController {
+    @GetMapping("/")
+    public String index(Model model, HttpServletResponse response) {
+        response.setHeader("X-Frame-Options", "SAMEORIGIN");
+        model.addAttribute("ModelName", "Deepseek");
+        return "index";
+    }
+
     @GetMapping("/chat")
-    public String chat(Model model) {
+    public String chat(Model model, HttpServletResponse response) {
+        response.setHeader("X-Frame-Options", "SAMEORIGIN");
         model.addAttribute("ModelName", "Deepseek");
         return "chat";
     }
 
     @GetMapping("/aboutus")
-    public String contactus(Model model) {
+    public String contactus(Model model, HttpServletResponse response) {
+        response.setHeader("X-Frame-Options", "SAMEORIGIN");
         return "aboutus";
     }
 
     @GetMapping("/settings")
-    public String settings(Model model) {
+    public String settings(Model model, HttpServletResponse response) {
+        // Remove X-Frame-Options header to prevent Firefox blocking
+        response.setHeader("X-Frame-Options", "SAMEORIGIN");
         return "settings";
     }
 

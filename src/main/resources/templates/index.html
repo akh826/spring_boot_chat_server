@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AKH Web - AI Chat Platform</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+      }
+
+      /* Hero Section with Interactive Background */
+      .hero {
+        min-height: calc(100vh - 56px);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Animated Background Canvas */
+      #backgroundCanvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+      }
+
+      /* Floating Particles */
+      .particle {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        pointer-events: none;
+        animation: float 6s infinite ease-in-out;
+      }
+
+      .particle:nth-child(1) { width: 20px; height: 20px; top: 20%; left: 10%; animation-delay: 0s; }
+      .particle:nth-child(2) { width: 15px; height: 15px; top: 60%; left: 20%; animation-delay: 1s; }
+      .particle:nth-child(3) { width: 25px; height: 25px; top: 30%; left: 80%; animation-delay: 2s; }
+      .particle:nth-child(4) { width: 12px; height: 12px; top: 80%; left: 70%; animation-delay: 3s; }
+      .particle:nth-child(5) { width: 18px; height: 18px; top: 15%; left: 60%; animation-delay: 4s; }
+      .particle:nth-child(6) { width: 22px; height: 22px; top: 70%; left: 40%; animation-delay: 5s; }
+
+      @keyframes float {
+        0%, 100% { 
+          transform: translateY(0px) rotate(0deg); 
+          opacity: 0.7;
+        }
+        50% { 
+          transform: translateY(-20px) rotate(180deg); 
+          opacity: 1;
+        }
+      }
+
+      /* Gradient Wave Animation */
+      .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, 
+          rgba(102, 126, 234, 0.8) 0%, 
+          rgba(118, 75, 162, 0.8) 25%, 
+          rgba(102, 126, 234, 0.8) 50%, 
+          rgba(118, 75, 162, 0.8) 75%, 
+          rgba(102, 126, 234, 0.8) 100%);
+        background-size: 400% 400%;
+        animation: gradientWave 8s ease infinite;
+        z-index: 1;
+      }
+
+      @keyframes gradientWave {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      /* Interactive Glow Effect */
+      .hero::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        animation: pulse 4s ease-in-out infinite;
+        z-index: 1;
+      }
+
+      @keyframes pulse {
+        0%, 100% { 
+          transform: translate(-50%, -50%) scale(1); 
+          opacity: 0.5;
+        }
+        50% { 
+          transform: translate(-50%, -50%) scale(1.2); 
+          opacity: 0.8;
+        }
+      }
+
+      .hero-content {
+        max-width: 800px;
+        padding: 40px 20px;
+        position: relative;
+        z-index: 10;
+      }
+
+      .hero h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        animation: fadeInUp 1s ease-out;
+      }
+
+      .hero .subtitle {
+        font-size: 1.3rem;
+        margin-bottom: 30px;
+        opacity: 0.95;
+        animation: fadeInUp 1s ease-out 0.2s both;
+      }
+
+      .hero .description {
+        font-size: 1.1rem;
+        margin-bottom: 40px;
+        opacity: 0.9;
+        line-height: 1.8;
+        animation: fadeInUp 1s ease-out 0.4s both;
+      }
+
+      .cta-buttons {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+        animation: fadeInUp 1s ease-out 0.6s both;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 15px 30px;
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        text-align: center;
+        min-width: 160px;
+      }
+
+      .btn-primary {
+        background: #007bff;
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+      }
+
+      .btn-primary:hover {
+        background: #0056b3;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+      }
+
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+      }
+
+      .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+
+      /* Features Section */
+      .features {
+        padding: 80px 20px;
+        background: #f8f9fa;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .features h2 {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      .features-subtitle {
+        text-align: center;
+        font-size: 1.2rem;
+        color: #666;
+        margin-bottom: 60px;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 40px;
+        margin-top: 60px;
+      }
+
+      .feature-card {
+        background: white;
+        padding: 40px 30px;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .feature-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 24px;
+        color: white;
+      }
+
+      .feature-card h3 {
+        font-size: 1.4rem;
+        margin-bottom: 15px;
+        color: #333;
+      }
+
+      .feature-card p {
+        color: #666;
+        line-height: 1.6;
+      }
+
+      /* Mobile Responsive */
+      @media (max-width: 768px) {
+        .hero h1 {
+          font-size: 2.5rem;
+        }
+
+        .hero .subtitle {
+          font-size: 1.1rem;
+        }
+
+        .cta-buttons {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .btn {
+          width: 100%;
+          max-width: 280px;
+        }
+
+        .features {
+          padding: 60px 20px;
+        }
+
+        .features h2 {
+          font-size: 2rem;
+        }
+
+        .features-grid {
+          grid-template-columns: 1fr;
+          gap: 30px;
+        }
+      }
+
+      /* Animations */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Floating Animation for Icons */
+      .feature-icon {
+        animation: float 3s ease-in-out infinite;
+      }
+
+      .feature-card:nth-child(2) .feature-icon {
+        animation-delay: 0.5s;
+      }
+
+      .feature-card:nth-child(3) .feature-icon {
+        animation-delay: 1s;
+      }
+
+      @keyframes float {
+        0%, 100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-5px);
+        }
+      }
+
+      /* Mobile optimizations for interactive background */
+      @media (max-width: 768px) {
+        .particle {
+          animation-duration: 8s; /* Slower animation on mobile */
+        }
+
+        .hero::before {
+          animation-duration: 12s; /* Slower gradient animation */
+        }
+
+        .hero::after {
+          width: 200px;
+          height: 200px;
+          animation-duration: 6s;
+        }
+
+        #backgroundCanvas {
+          opacity: 0.7; /* Reduce canvas opacity on mobile for better text readability */
+        }
+      }
+
+      /* Reduced motion for accessibility */
+      @media (prefers-reduced-motion: reduce) {
+        .particle,
+        .hero::before,
+        .hero::after {
+          animation: none;
+        }
+        
+        #backgroundCanvas {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <th:block th:replace="~{TopNav.html}"></th:block>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <!-- Interactive Background Canvas -->
+      <canvas id="backgroundCanvas"></canvas>
+      
+      <!-- Floating Particles -->
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      
+      <div class="hero-content">
+        <h1>Welcome to AKH Web</h1>
+        <p class="subtitle">Your Gateway to AI-Powered Conversations</p>
+        <p class="description">
+          Experience the future of communication with our advanced AI chatbot powered by DeepSeek. 
+          Get intelligent responses, creative assistance, and engaging conversations in a beautiful, 
+          mobile-friendly interface designed for the modern web.
+        </p>
+        <div class="cta-buttons">
+          <a href="/chat" class="btn btn-primary">Start Chatting</a>
+          <a href="/aboutus" class="btn btn-secondary">Learn More</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+      <div class="container">
+        <h2>Why Choose AKH Web?</h2>
+        <p class="features-subtitle">Discover the features that make our platform special</p>
+        
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🤖</div>
+            <h3>AI-Powered Chat</h3>
+            <p>Engage with advanced AI technology powered by DeepSeek for intelligent, context-aware conversations that feel natural and helpful.</p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">📱</div>
+            <h3>Mobile-First Design</h3>
+            <p>Enjoy a seamless experience across all devices with our responsive design optimized for mobile, tablet, and desktop use.</p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3>Secure & Private</h3>
+            <p>Your conversations are protected with enterprise-grade security, SSL encryption, and privacy-focused architecture.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      // Add some interactive effects
+      document.addEventListener('DOMContentLoaded', function() {
+        // Smooth scrolling for any internal links
+        const links = document.querySelectorAll('a[href^="#"]');
+        links.forEach(link => {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+              target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+              });
+            }
+          });
+        });
+
+        // Add hover effect to feature cards
+        const featureCards = document.querySelectorAll('.feature-card');
+        featureCards.forEach(card => {
+          card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px) scale(1.02)';
+          });
+          
+          card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+          });
+        });
+
+        // Interactive Background Canvas Animation
+        const canvas = document.getElementById('backgroundCanvas');
+        const ctx = canvas.getContext('2d');
+        let animationId;
+        let particles = [];
+        let mouse = { x: 0, y: 0 };
+
+        // Set canvas size
+        function resizeCanvas() {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        }
+
+        // Particle class
+        class Particle {
+          constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 3 + 1;
+            this.speedX = Math.random() * 2 - 1;
+            this.speedY = Math.random() * 2 - 1;
+            this.opacity = Math.random() * 0.5 + 0.2;
+          }
+
+          update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+
+            // Mouse interaction
+            const dx = mouse.x - this.x;
+            const dy = mouse.y - this.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < 100) {
+              const forceDirectionX = dx / distance;
+              const forceDirectionY = dy / distance;
+              const maxDistance = 100;
+              const force = (maxDistance - distance) / maxDistance;
+              
+              this.x -= forceDirectionX * force * 3;
+              this.y -= forceDirectionY * force * 3;
+            }
+
+            // Boundary check
+            if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+            if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+
+            // Keep particles in bounds
+            this.x = Math.max(0, Math.min(canvas.width, this.x));
+            this.y = Math.max(0, Math.min(canvas.height, this.y));
+          }
+
+          draw() {
+            ctx.save();
+            ctx.globalAlpha = this.opacity;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+
+        // Initialize particles
+        function initParticles() {
+          particles = [];
+          const particleCount = Math.floor((canvas.width * canvas.height) / 15000);
+          for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+          }
+        }
+
+        // Draw connections between nearby particles
+        function drawConnections() {
+          for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+              const dx = particles[i].x - particles[j].x;
+              const dy = particles[i].y - particles[j].y;
+              const distance = Math.sqrt(dx * dx + dy * dy);
+
+              if (distance < 120) {
+                ctx.save();
+                ctx.globalAlpha = (120 - distance) / 120 * 0.2;
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(particles[i].x, particles[i].y);
+                ctx.lineTo(particles[j].x, particles[j].y);
+                ctx.stroke();
+                ctx.restore();
+              }
+            }
+          }
+        }
+
+        // Animation loop
+        function animate() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          
+          // Update and draw particles
+          particles.forEach(particle => {
+            particle.update();
+            particle.draw();
+          });
+
+          // Draw connections
+          drawConnections();
+
+          animationId = requestAnimationFrame(animate);
+        }
+
+        // Mouse tracking
+        canvas.addEventListener('mousemove', (e) => {
+          const rect = canvas.getBoundingClientRect();
+          mouse.x = e.clientX - rect.left;
+          mouse.y = e.clientY - rect.top;
+        });
+
+        // Initialize canvas
+        resizeCanvas();
+        initParticles();
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+          resizeCanvas();
+          initParticles();
+        });
+
+      });
+    </script>
+  </body>
+</html>

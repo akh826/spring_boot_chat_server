@@ -3,93 +3,9 @@
   <head>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Chat Room</title>
-    <style>
-      html,
-      body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-      body {
-        font-family: Arial, sans-serif;
-        background: #f4f4f4;
-        margin: 0;
-        padding: 0;
-        height: 100%;
-      }
-      .chat-container {
-        position: absolute;
-        top: 56px; /* Height of the nav bar */
-        left: 10px;
-        right: 10px;
-        bottom: 10px;
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-      }
-      .chat-header {
-        position: sticky;
-        top: 0;
-        z-index: 2;
-        padding: 16px;
-        background: #007bff;
-        color: #fff;
-        border-radius: 8px 8px 0 0;
-      }
-      .chat-messages {
-        flex: 1 1 auto;
-        overflow-y: auto;
-        padding: 16px;
-        border-bottom: 1px solid #eee;
-        margin-bottom: 64px; /* Space for input area */
-      }
-      .chat-message {
-        margin-bottom: 12px;
-      }
-      .chat-message .user {
-        color: rgb(255, 0, 0);
-        font-weight: bold;
-        margin-right: 8px;
-      }
-      .chat-message .robot {
-        color: #007bff;
-        font-weight: bold;
-        margin-right: 8px;
-      }
-      .chat-input-area {
-        position: fixed;
-        left: 10px;
-        right: 10px;
-        bottom: 10px;
-        background: #fff;
-        display: flex;
-        padding: 16px;
-        border-radius: 0 0 8px 8px;
-        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.03);
-        z-index: 2;
-      }
-      .chat-input-area input[type="text"] {
-        flex: 1;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-      }
-      .chat-input-area button {
-        margin-left: 8px;
-        padding: 10px 20px;
-        background: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-      .chat-input-area button:hover {
-        background: #0056b3;
-      }
-    </style>
+    <link rel="stylesheet" href="/css/chat.css" />
   </head>
   <body>
     <th:block th:replace="~{TopNav.html}"></th:block>
@@ -102,10 +18,10 @@
           justify-content: space-between;
         "
       >
-        <h2 style="margin: 0">
+        <h2 style="margin: 0; font-size: 1.3em;">
           ChatBot (<span th:text="${ModelName}"></span>)
         </h2>
-        <div>
+        <div style="display: flex; gap: 8px;">
           <button
             id="settingsBtn"
             style="
@@ -113,16 +29,23 @@
               color: #007bff;
               border: none;
               border-radius: 4px;
-              padding: 8px 16px;
+              padding: 8px 12px;
               font-weight: bold;
               cursor: pointer;
-              margin-right: 8px;
+              -webkit-tap-highlight-color: rgba(0, 123, 255, 0.3);
+              touch-action: manipulation;
+              pointer-events: auto;
+              min-height: 44px;
+              min-width: 44px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
             "
           >
             <img
               src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/icons/gear.svg"
               alt="Settings"
-              style="width: 20px; height: 20px; display: block"
+              style="width: 18px; height: 18px; display: block; pointer-events: none;"
             />
           </button>
           <button
@@ -132,18 +55,27 @@
               color: rgb(255, 0, 0);
               border: none;
               border-radius: 4px;
-              padding: 8px 16px;
+              padding: 8px 12px;
               font-weight: bold;
               cursor: pointer;
+              -webkit-tap-highlight-color: rgba(255, 0, 0, 0.3);
+              touch-action: manipulation;
+              pointer-events: auto;
+              min-height: 44px;
+              min-width: 44px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
             "
           >
             <img
               src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/icons/trash.svg"
               alt="Clear History"
               style="
-                width: 20px;
-                height: 20px;
+                width: 18px;
+                height: 18px;
                 display: block;
+                pointer-events: none;
                 filter: invert(22%) sepia(99%) saturate(7482%)
                   hue-rotate(357deg) brightness(97%) contrast(119%);
               "
@@ -159,26 +91,124 @@
           id="userInput"
           placeholder="Type your message..."
           required
-          rows="2"
+          rows="1"
           style="
-            resize: none;
-            width: 100%;
             border: 1px solid #ccc;
-            border-radius: 4px;
-            padding: 10px;
+            border-radius: 20px;
+            padding: 12px 16px;
+            font-size: 16px;
+            line-height: 1.4;
+            resize: none;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
           "
         ></textarea>
-        <button type="submit">Send</button>
+        <button type="submit" id="sendButton">Send</button>
       </form>
     </div>
     <script>
+      // iOS Safari detection
+      const isIOSSafari = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      
+      // Prevent accidental page refresh
+      window.addEventListener('beforeunload', function (e) {
+        if (chatHistory.length > 0) {
+          e.preventDefault();
+          e.returnValue = 'Are you sure you want to leave? Your chat history will be lost.';
+          return 'Are you sure you want to leave? Your chat history will be lost.';
+        }
+      });
+
+      // iOS-specific fixes
+      if (isIOSSafari) {
+        // Fix viewport height issues on iOS
+        function setViewportHeight() {
+          const vh = window.innerHeight * 0.01;
+          document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        
+        setViewportHeight();
+        window.addEventListener('resize', setViewportHeight);
+        window.addEventListener('orientationchange', function() {
+          setTimeout(setViewportHeight, 500);
+        });
+
+        // Prevent iOS bounce scrolling
+        document.addEventListener('touchmove', function(e) {
+          e.preventDefault();
+        }, { passive: false });
+
+        // Allow scrolling only in chat messages area
+        const chatMessagesEl = document.getElementById('chatMessages');
+        if (chatMessagesEl) {
+          chatMessagesEl.addEventListener('touchmove', function(e) {
+            e.stopPropagation();
+          }, { passive: true });
+        }
+
+        // Fix input focus issues on iOS
+        document.addEventListener('touchend', function(e) {
+          if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') {
+            e.target.focus();
+          }
+        });
+      } else {
+        // Prevent pull-to-refresh on other mobile browsers
+        document.body.addEventListener('touchstart', function(e) {
+          if (e.touches.length === 1 && window.pageYOffset === 0) {
+            e.preventDefault();
+          }
+        }, { passive: false });
+
+        document.body.addEventListener('touchmove', function(e) {
+          if (e.touches.length === 1 && window.pageYOffset === 0) {
+            e.preventDefault();
+          }
+        }, { passive: false });
+      }
+
+      // Auto-resize textarea
+      function autoResize(textarea) {
+        textarea.style.height = 'auto';
+        const maxHeight = isIOSSafari ? 120 : 100; // More space on iOS
+        if (textarea.scrollHeight <= maxHeight) {
+          textarea.style.height = textarea.scrollHeight + 'px';
+        } else {
+          textarea.style.height = maxHeight + 'px';
+        }
+      }
+
       // Store chat history as an array of {role, content}
       const chatHistory = [];
       const chatForm = document.getElementById("chatForm");
       const chatMessages = document.getElementById("chatMessages");
       const userInput = document.getElementById("userInput");
+      const sendButton = document.getElementById("sendButton");
 
       let waitingForResponse = false;
+
+      // Auto-resize textarea on input
+      userInput.addEventListener('input', function() {
+        autoResize(this);
+      });
+
+      // Handle viewport changes (mobile keyboard)
+      function handleViewportChange() {
+        const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+        document.documentElement.style.setProperty('--viewport-height', `${viewportHeight}px`);
+        
+        // Scroll to bottom when keyboard opens/closes
+        setTimeout(() => {
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 100);
+      }
+
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', handleViewportChange);
+      }
+      window.addEventListener('resize', handleViewportChange);
+      handleViewportChange();
 
       function escapeHtml(text) {
         return text
@@ -224,11 +254,14 @@
         if (message) {
           waitingForResponse = true;
           userInput.disabled = true;
+          sendButton.disabled = true;
+          sendButton.textContent = "...";
 
           // Add user message to history and UI
           chatHistory.push({ role: "user", content: message });
           appendMessage("user", message);
           userInput.value = "";
+          autoResize(userInput); // Reset textarea height
 
           // Show robot is typing...
           const typingDiv = document.createElement("div");
@@ -275,6 +308,8 @@
             .finally(() => {
               waitingForResponse = false;
               userInput.disabled = false;
+              sendButton.disabled = false;
+              sendButton.textContent = "Send";
               userInput.focus();
             });
         }
@@ -353,11 +388,27 @@
         });
       };
       document.getElementById("clearHistoryBtn").onclick = function () {
-        chatHistory.length = 0; // Clear array
-        chatMessages.innerHTML = ""; // Clear UI
-        userInput.value = "";
-        userInput.focus();
+        if (chatHistory.length > 0) {
+          if (confirm("Are you sure you want to clear all chat history? This action cannot be undone.")) {
+            chatHistory.length = 0; // Clear array
+            chatMessages.innerHTML = ""; // Clear UI
+            userInput.value = "";
+            autoResize(userInput); // Reset textarea height
+            userInput.focus();
+          }
+        } else {
+          chatHistory.length = 0; // Clear array
+          chatMessages.innerHTML = ""; // Clear UI
+          userInput.value = "";
+          autoResize(userInput); // Reset textarea height
+          userInput.focus();
+        }
       };
+
+      // Focus input on page load
+      window.addEventListener('load', function() {
+        userInput.focus();
+      });
     </script>
   </body>
 </html>

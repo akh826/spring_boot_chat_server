@@ -1,0 +1,264 @@
+/* Chat Application Styles */
+
+html,
+body {
+    height: 100%;
+    height: calc(var(--vh, 1vh) * 100);
+    /* iOS viewport fix */
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    /* Prevent body scroll on mobile */
+    -webkit-overflow-scrolling: touch;
+    /* Fix for iOS Safari */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
+    /* iOS viewport fix */
+    height: -webkit-fill-available;
+    /* iOS viewport fix */
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    /* iOS Safari fixes */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+}
+
+.chat-container {
+    position: fixed;
+    top: 56px;
+    /* Height of the nav bar */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .chat-container {
+        top: 50px;
+        /* Smaller nav on mobile */
+        left: 0;
+        right: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+}
+
+.chat-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 12px 16px;
+    background: #007bff;
+    color: #fff;
+    border-radius: 0;
+    flex-shrink: 0;
+}
+
+.chat-messages {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px;
+    padding-bottom: 100px;
+    /* Space for fixed input area */
+    -webkit-overflow-scrolling: touch;
+}
+
+.chat-message {
+    margin-bottom: 12px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.chat-message .user {
+    color: rgb(255, 0, 0);
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+.chat-message .robot {
+    color: #007bff;
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+.chat-input-area {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #fff;
+    display: flex;
+    padding: 12px 16px;
+    border-top: 1px solid #eee;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    gap: 8px;
+    align-items: center;
+    /* iOS Safari fixes */
+    -webkit-touch-callout: default;
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+    /* Support iOS safe areas */
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+}
+
+.chat-input-area textarea {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #ccc;
+    border-radius: 20px;
+    resize: none;
+    min-height: 44px;
+    /* iOS minimum touch target */
+    max-height: 120px;
+    font-size: 16px;
+    /* Prevent zoom on iOS */
+    line-height: 1.4;
+    outline: none;
+    font-family: inherit;
+    -webkit-appearance: none;
+    appearance: none;
+    /* iOS specific fixes */
+    -webkit-touch-callout: default;
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+    -webkit-tap-highlight-color: transparent;
+    /* Enable text selection and input */
+    pointer-events: auto;
+    touch-action: manipulation;
+}
+
+.chat-input-area textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+.chat-input-area button {
+    padding: 16px 28px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 18px;
+    min-width: 80px;
+    min-height: 52px;
+    /* iOS minimum touch target */
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: rgba(0, 123, 255, 0.3);
+    touch-action: manipulation;
+    /* Ensure button is tappable */
+    pointer-events: auto;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.chat-input-area button:hover {
+    background: #0056b3;
+}
+
+.chat-input-area button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 768px) {
+    .chat-container {
+        top: 50px;
+        /* Smaller nav on mobile */
+    }
+
+    .chat-header {
+        padding: 8px 12px;
+    }
+
+    .chat-header h2 {
+        font-size: 1.2em;
+    }
+
+    .chat-messages {
+        padding: 12px;
+        padding-bottom: 120px;
+        /* More space for input area */
+    }
+
+    .chat-input-area {
+        padding: 8px 12px;
+        padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    }
+
+    .chat-input-area textarea {
+        font-size: 16px;
+        padding: 12px 16px;
+        min-height: 44px;
+    }
+
+    .chat-input-area button {
+        padding: 14px 20px;
+        min-width: 75px;
+        min-height: 50px;
+    }
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+    .chat-container {
+        height: -webkit-fill-available;
+    }
+
+    .chat-input-area {
+        /* Handle iOS keyboard better */
+        position: fixed;
+        bottom: 0;
+        bottom: env(safe-area-inset-bottom);
+    }
+
+    .chat-input-area textarea {
+        /* Prevent iOS zoom */
+        font-size: 16px;
+        -webkit-text-size-adjust: 100%;
+    }
+}
+
+/* Handle virtual keyboard on mobile */
+@media (max-height: 500px) {
+    .chat-messages {
+        padding-bottom: 100px;
+    }
+
+    .chat-input-area {
+        padding: 6px 12px;
+    }
+}
