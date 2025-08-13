@@ -1,416 +1,599 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Chat Room</title>
-    <link rel="stylesheet" href="/css/general.css" />
-    <link rel="stylesheet" href="/css/navigation.css" />
-    <link rel="stylesheet" href="/css/chat.css" />
-  </head>
-  <body>
-    <th:block th:replace="~{TopNav.html}"></th:block>
-    <div class="chat-container">
-      <div
-        class="chat-header"
-        style="
+
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Chat Room</title>
+  <link rel="stylesheet" href="/css/general.css" />
+  <link rel="stylesheet" href="/css/navigation.css" />
+  <link rel="stylesheet" href="/css/chat.css" />
+</head>
+
+<body>
+  <th:block th:replace="~{TopNav.html}"></th:block>
+  <div class="chat-container">
+    <div class="chat-header" style="
           display: flex;
           align-items: center;
           justify-content: space-between;
-        "
-      >
-        <h2 style="margin: 0; font-size: 1.3em;">
-          ChatBot (<span th:text="${ModelName}"></span>)
-        </h2>
-        <div style="display: flex; gap: 8px;">
-          <button
-            id="settingsBtn"
-            style="
-              background: #fff;
-              color: #007bff;
-              border: none;
-              border-radius: 4px;
-              padding: 8px 12px;
-              font-weight: bold;
-              cursor: pointer;
-              -webkit-tap-highlight-color: rgba(0, 123, 255, 0.3);
-              touch-action: manipulation;
-              pointer-events: auto;
-              min-height: 44px;
-              min-width: 44px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-            "
-          >
-            <img
-              src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/icons/gear.svg"
-              alt="Settings"
-              style="width: 18px; height: 18px; display: block; pointer-events: none;"
-            />
-          </button>
-          <button
-            id="clearHistoryBtn"
-            style="
-              background: #fff;
-              color: rgb(255, 0, 0);
-              border: none;
-              border-radius: 4px;
-              padding: 8px 12px;
-              font-weight: bold;
-              cursor: pointer;
-              -webkit-tap-highlight-color: rgba(255, 0, 0, 0.3);
-              touch-action: manipulation;
-              pointer-events: auto;
-              min-height: 44px;
-              min-width: 44px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-            "
-          >
-            <img
-              src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/icons/trash.svg"
-              alt="Clear History"
-              style="
-                width: 18px;
-                height: 18px;
-                display: block;
-                pointer-events: none;
-                filter: invert(22%) sepia(99%) saturate(7482%)
-                  hue-rotate(357deg) brightness(97%) contrast(119%);
-              "
-            />
-          </button>
-        </div>
+        ">
+      <h2 style="margin: 0; font-size: 1.3em;">
+        ChatBot (<span th:text="${ModelName}"></span>)
+      </h2>
+      <div style="display: flex; gap: 8px;">
+        <button id="settingsBtn" class="chat-header-btn">
+          <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/icons/gear.svg" alt="Settings" />
+        </button>
+        <button id="clearHistoryBtn" class="chat-header-btn clear-btn">
+          <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/icons/trash.svg" alt="Clear History" />
+        </button>
       </div>
-      <div class="chat-messages" id="chatMessages">
-        <!-- Messages will appear here -->
-      </div>
-      <form class="chat-input-area" id="chatForm" autocomplete="off">
-        <textarea
-          id="userInput"
-          placeholder="Type your message..."
-          required
-          rows="1"
-          style="
-            border: 1px solid #ccc;
-            border-radius: 20px;
-            padding: 12px 16px;
-            font-size: 16px;
-            line-height: 1.4;
-            resize: none;
-            outline: none;
-            -webkit-appearance: none;
-            appearance: none;
-          "
-        ></textarea>
-        <button type="submit" id="sendButton">Send</button>
-      </form>
     </div>
-    <script>
-      // iOS Safari detection
-      const isIOSSafari = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-      
-      // Prevent accidental page refresh
-      window.addEventListener('beforeunload', function (e) {
-        if (chatHistory.length > 0) {
-          e.preventDefault();
-          e.returnValue = 'Are you sure you want to leave? Your chat history will be lost.';
-          return 'Are you sure you want to leave? Your chat history will be lost.';
-        }
-      });
+    <div class="chat-messages" id="chatMessages">
+      <!-- Messages will appear here -->
+    </div>
+    <form class="chat-input-area" id="chatForm" autocomplete="off">
+      <div class="chat-input-container">
+        <textarea id="userInput" placeholder="Type your message..." required rows="1"></textarea>
+        <button type="submit" id="sendButton">Send</button>
+      </div>
+    </form>
+  </div>
+  <script>
+    // iOS viewport height fix
+    function setVH() {
+      let vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
 
-      // iOS-specific fixes
-      if (isIOSSafari) {
-        // Fix viewport height issues on iOS
-        function setViewportHeight() {
-          const vh = window.innerHeight * 0.01;
-          document.documentElement.style.setProperty('--vh', `${vh}px`);
-        }
-        
-        setViewportHeight();
-        window.addEventListener('resize', setViewportHeight);
-        window.addEventListener('orientationchange', function() {
-          setTimeout(setViewportHeight, 500);
-        });
+    // Set initial viewport height
+    setVH();
 
-        // Prevent iOS bounce scrolling
-        document.addEventListener('touchmove', function(e) {
-          e.preventDefault();
-        }, { passive: false });
+    // Listen for viewport changes (orientation, keyboard, etc.)
+    window.addEventListener('resize', setVH);
+    window.addEventListener('orientationchange', setVH);
 
-        // Allow scrolling only in chat messages area
-        const chatMessagesEl = document.getElementById('chatMessages');
-        if (chatMessagesEl) {
-          chatMessagesEl.addEventListener('touchmove', function(e) {
-            e.stopPropagation();
-          }, { passive: true });
-        }
+    // iOS Safari detection
+    const isIOSSafari = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isIOSChrome = isIOS && /CriOS/.test(navigator.userAgent);
+    const isIOSDevice = isIOS || isIOSChrome;
 
-        // Fix input focus issues on iOS
-        document.addEventListener('touchend', function(e) {
-          if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') {
-            e.target.focus();
-          }
-        });
-      } else {
-        // Prevent pull-to-refresh on other mobile browsers
-        document.body.addEventListener('touchstart', function(e) {
-          if (e.touches.length === 1 && window.pageYOffset === 0) {
-            e.preventDefault();
-          }
-        }, { passive: false });
-
-        document.body.addEventListener('touchmove', function(e) {
-          if (e.touches.length === 1 && window.pageYOffset === 0) {
-            e.preventDefault();
-          }
-        }, { passive: false });
-      }
-
-      // Auto-resize textarea
-      function autoResize(textarea) {
-        textarea.style.height = 'auto';
-        const maxHeight = isIOSSafari ? 120 : 100; // More space on iOS
-        if (textarea.scrollHeight <= maxHeight) {
-          textarea.style.height = textarea.scrollHeight + 'px';
-        } else {
-          textarea.style.height = maxHeight + 'px';
-        }
-      }
-
-      // Store chat history as an array of {role, content}
-      const chatHistory = [];
-      const chatForm = document.getElementById("chatForm");
-      const chatMessages = document.getElementById("chatMessages");
-      const userInput = document.getElementById("userInput");
-      const sendButton = document.getElementById("sendButton");
-
-      let waitingForResponse = false;
-
-      // Auto-resize textarea on input
-      userInput.addEventListener('input', function() {
-        autoResize(this);
-      });
-
-      // Handle viewport changes (mobile keyboard)
-      function handleViewportChange() {
-        const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-        document.documentElement.style.setProperty('--viewport-height', `${viewportHeight}px`);
-        
-        // Scroll to bottom when keyboard opens/closes
-        setTimeout(() => {
-          chatMessages.scrollTop = chatMessages.scrollHeight;
-        }, 100);
-      }
-
-      if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', handleViewportChange);
-      }
-      window.addEventListener('resize', handleViewportChange);
-      handleViewportChange();
-
-      function escapeHtml(text) {
-        return text
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#039;");
-      }
-
-      function appendMessage(role, text) {
-        const msgDiv = document.createElement("div");
-        msgDiv.className = "chat-message";
-        if (role === "user") {
-          // Escape HTML and preserve newlines for user messages
-          let safeText = escapeHtml(text).replace(/\n/g, "<br>");
-          msgDiv.innerHTML = `<span class="user">You:</span> <br /><span class="text">${safeText}</span>`;
-        } else if (role === "robot") {
-          // Render Markdown for robot messages
-          let html = marked.parse(text);
-          msgDiv.innerHTML = `<span class="robot">Robot:</span> <br /><span class="text">${html}</span>`;
-        }
-        chatMessages.appendChild(msgDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
-
-      // Allow Shift+Enter for newline, Enter for send
-      userInput.addEventListener("keydown", function (e) {
-        if (e.key === "Enter" && !e.shiftKey) {
-          e.preventDefault();
-          chatForm.dispatchEvent(
-            new Event("submit", { cancelable: true, bubbles: true })
-          );
-        }
-        // If Shift+Enter, allow default (newline)
-      });
-
-      chatForm.addEventListener("submit", function (e) {
+    // Prevent accidental page refresh
+    window.addEventListener('beforeunload', function (e) {
+      if (chatHistory.length > 0) {
         e.preventDefault();
-        if (waitingForResponse) return; // Prevent sending if waiting for response
+        e.returnValue = 'Are you sure you want to leave? Your chat history will be lost.';
+        return 'Are you sure you want to leave? Your chat history will be lost.';
+      }
+    });
 
-        const message = userInput.value.trim();
-        if (message) {
-          waitingForResponse = true;
-          userInput.disabled = true;
-          sendButton.disabled = true;
-          sendButton.textContent = "...";
+    // iOS-specific fixes (Safari and Chrome)
+    if (isIOSDevice) {
+      // Fix viewport height issues on iOS
+      function setViewportHeight() {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+      }
 
-          // Add user message to history and UI
-          chatHistory.push({ role: "user", content: message });
-          appendMessage("user", message);
-          userInput.value = "";
-          autoResize(userInput); // Reset textarea height
+      setViewportHeight();
+      window.addEventListener('resize', setViewportHeight);
+      window.addEventListener('orientationchange', function () {
+        setTimeout(setViewportHeight, 500);
+      });
 
-          // Show robot is typing...
-          const typingDiv = document.createElement("div");
-          typingDiv.className = "chat-message";
-          typingDiv.id = "robot-typing";
-          typingDiv.innerHTML = `<span class="robot">Robot:</span> <span class="text">...</span>`;
-          chatMessages.appendChild(typingDiv);
-          chatMessages.scrollTop = chatMessages.scrollHeight;
+      // Prevent iOS bounce scrolling only on document body, not on interactive elements
+      document.body.addEventListener('touchmove', function (e) {
+        // Only prevent if it's the body itself being touched, not child elements
+        if (e.target === document.body) {
+          e.preventDefault();
+        }
+      }, { passive: false });
 
-          const systemPrompt = {
-            role: "system",
-            content: localStorage.getItem("deepseek_system_prompt") || "",
-          };
-          const chatWithSystemPrompt = [systemPrompt, ...chatHistory];
+      // Allow scrolling in chat messages area
+      const chatMessagesEl = document.getElementById('chatMessages');
+      if (chatMessagesEl) {
+        chatMessagesEl.addEventListener('touchmove', function (e) {
+          e.stopPropagation();
+        }, { passive: true });
+      }
 
-          // Send POST request with chat history
-          fetch("/postchat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              history: chatWithSystemPrompt,
-              deepseek_api_key: localStorage.getItem("deepseek_api_key") || "",
-            }),
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              // Remove typing indicator
-              const typingElem = document.getElementById("robot-typing");
-              if (typingElem) typingElem.remove();
-
-              // Add robot reply to history and UI
-              if (data && data.reply) {
-                chatHistory.push({ role: "assistant", content: data.reply });
-                appendMessage("robot", data.reply);
-              } else {
-                appendMessage("robot", "No reply from server.");
-              }
-            })
-            .catch(() => {
-              const typingElem = document.getElementById("robot-typing");
-              if (typingElem) typingElem.remove();
-              appendMessage("robot", "Error contacting server.");
-            })
-            .finally(() => {
-              waitingForResponse = false;
-              userInput.disabled = false;
-              sendButton.disabled = false;
-              sendButton.textContent = "Send";
-              userInput.focus();
-            });
+      // Fix input focus issues on iOS
+      document.addEventListener('touchend', function (e) {
+        if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') {
+          setTimeout(() => {
+            e.target.focus();
+          }, 100);
         }
       });
-      document.getElementById("settingsBtn").onclick = function () {
-        // Create overlay
-        const overlay = document.createElement("div");
-        overlay.style.position = "fixed";
-        overlay.style.top = 0;
-        overlay.style.left = 0;
-        overlay.style.width = "100vw";
-        overlay.style.height = "100vh";
-        overlay.style.background = "rgba(0,0,0,0.3)";
-        overlay.style.zIndex = 1000;
-        overlay.id = "settingsOverlay";
 
-        // Create iframe container
-        const frameContainer = document.createElement("div");
-        frameContainer.style.position = "absolute";
-        frameContainer.style.top = "50%";
-        frameContainer.style.left = "50%";
-        frameContainer.style.transform = "translate(-50%, -50%)";
-        frameContainer.style.background = "#fff";
-        frameContainer.style.borderRadius = "8px";
-        frameContainer.style.boxShadow = "0 2px 16px rgba(0,0,0,0.2)";
-        frameContainer.style.width = "90vw";
-        frameContainer.style.maxWidth = "600px";
-        frameContainer.style.height = "80vh";
-        frameContainer.style.display = "flex";
-        frameContainer.style.flexDirection = "column";
-        frameContainer.style.overflow = "hidden";
+      // Add explicit touch event handling for buttons
+      document.addEventListener('touchstart', function (e) {
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+          // Add a visual feedback for touch
+          const button = e.target.tagName === 'BUTTON' ? e.target : e.target.closest('button');
+          button.style.opacity = '0.7';
+        }
+      }, { passive: true });
 
-        // Close button
-        const closeBtn = document.createElement("button");
-        closeBtn.title = "Close";
-        closeBtn.style.alignSelf = "flex-end";
-        closeBtn.style.margin = "8px";
-        closeBtn.style.background = "transparent";
-        closeBtn.style.color = "#dc3545";
-        closeBtn.style.border = "none";
-        closeBtn.style.borderRadius = "50%";
-        closeBtn.style.padding = "4px";
-        closeBtn.style.cursor = "pointer";
-        closeBtn.style.width = "32px";
-        closeBtn.style.height = "32px";
-        closeBtn.style.display = "flex";
-        closeBtn.style.alignItems = "center";
-        closeBtn.style.justifyContent = "center";
-        // Red cross SVG
-        closeBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <line x1="5" y1="5" x2="15" y2="15" stroke="#dc3545" stroke-width="2" stroke-linecap="round"/>
-  <line x1="15" y1="5" x2="5" y2="15" stroke="#dc3545" stroke-width="2" stroke-linecap="round"/>
-</svg>`;
-        closeBtn.onclick = function () {
-          document.body.removeChild(overlay);
+      document.addEventListener('touchend', function (e) {
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+          // Remove visual feedback
+          const button = e.target.tagName === 'BUTTON' ? e.target : e.target.closest('button');
+          setTimeout(() => {
+            button.style.opacity = '';
+          }, 150);
+        }
+      }, { passive: true });
+
+    } else {
+      // Prevent pull-to-refresh on other mobile browsers
+      document.body.addEventListener('touchstart', function (e) {
+        if (e.touches.length === 1 && window.pageYOffset === 0) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+
+      document.body.addEventListener('touchmove', function (e) {
+        if (e.touches.length === 1 && window.pageYOffset === 0) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+    }
+
+    // Auto-resize textarea
+    function autoResize(textarea) {
+      textarea.style.height = 'auto';
+      const maxHeight = isIOSDevice ? 120 : 100; // More space on iOS
+      if (textarea.scrollHeight <= maxHeight) {
+        textarea.style.height = textarea.scrollHeight + 'px';
+      } else {
+        textarea.style.height = maxHeight + 'px';
+      }
+    }
+
+    // Store chat history as an array of {role, content}
+    const chatHistory = [];
+    const chatForm = document.getElementById("chatForm");
+    const chatMessages = document.getElementById("chatMessages");
+    const userInput = document.getElementById("userInput");
+    const sendButton = document.getElementById("sendButton");
+
+    let waitingForResponse = false;
+
+    // Auto-resize textarea on input
+    userInput.addEventListener('input', function () {
+      autoResize(this);
+    });
+
+    // Handle viewport changes (mobile keyboard)
+    function handleViewportChange() {
+      const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      document.documentElement.style.setProperty('--viewport-height', `${viewportHeight}px`);
+
+      // Scroll to bottom when keyboard opens/closes
+      setTimeout(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }, 100);
+    }
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleViewportChange);
+    }
+    window.addEventListener('resize', handleViewportChange);
+    handleViewportChange();
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function appendMessage(role, text) {
+      console.log("appendMessage called with role:", role, "text:", text); // Debug log
+      const msgDiv = document.createElement("div");
+      msgDiv.className = "chat-message";
+      if (role === "user") {
+        // Escape HTML and preserve newlines for user messages
+        let safeText = escapeHtml(text).replace(/\n/g, "<br>");
+        msgDiv.innerHTML = `<span class="user">You:</span> <br /><span class="text">${safeText}</span>`;
+      } else if (role === "robot" || role === "assistant") {
+        // Render Markdown for robot/assistant messages
+        let html = marked.parse(text);
+        msgDiv.innerHTML = `<span class="robot">Robot:</span> <br /><span class="text">${html}</span>`;
+      }
+      console.log("Appending message div:", msgDiv); // Debug log
+      chatMessages.appendChild(msgDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      console.log("Message appended and scrolled"); // Debug log
+    }
+
+    // Allow Shift+Enter for newline, Enter for send
+    userInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        chatForm.dispatchEvent(
+          new Event("submit", { cancelable: true, bubbles: true })
+        );
+      }
+      // If Shift+Enter, allow default (newline)
+    });
+
+    chatForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      console.log("Chat form submitted"); // Debug log
+
+      if (waitingForResponse) {
+        console.log("Already waiting for response, ignoring submit");
+        return; // Prevent sending if waiting for response
+      }
+
+      const message = userInput.value.trim();
+      console.log("Message to send:", message); // Debug log
+
+      if (message) {
+        console.log("Sending message:", message); // Debug log
+        waitingForResponse = true;
+        userInput.disabled = true;
+        sendButton.disabled = true;
+        sendButton.textContent = "...";
+
+        // Add user message to history and UI
+        chatHistory.push({ role: "user", content: message });
+        appendMessage("user", message);
+        userInput.value = "";
+        autoResize(userInput); // Reset textarea height
+
+        // Show robot is typing...
+        const typingDiv = document.createElement("div");
+        typingDiv.className = "chat-message";
+        typingDiv.id = "robot-typing";
+        typingDiv.innerHTML = `<span class="robot">Robot:</span> <span class="text">...</span>`;
+        chatMessages.appendChild(typingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        const systemPrompt = {
+          role: "system",
+          content: localStorage.getItem("deepseek_system_prompt") || "",
         };
+        const chatWithSystemPrompt = [systemPrompt, ...chatHistory];
 
-        // Iframe
-        const iframe = document.createElement("iframe");
-        iframe.src = "/settings";
-        iframe.style.border = "none";
-        iframe.style.width = "100%";
-        iframe.style.flex = "1 1 auto";
-        iframe.style.height = "100%";
+        console.log("Sending POST request to /postchat"); // Debug log
 
-        frameContainer.appendChild(closeBtn);
-        frameContainer.appendChild(iframe);
-        overlay.appendChild(frameContainer);
-        document.body.appendChild(overlay);
+        // Send POST request with chat history
+        fetch("/postchat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            history: chatWithSystemPrompt,
+            deepseek_api_key: localStorage.getItem("deepseek_api_key") || "",
+          }),
+        })
+          .then((response) => {
+            console.log("Received response:", response); // Debug log
+            return response.json();
+          })
+          .then((data) => {
+            console.log("Response data:", data); // Debug log
 
-        // Allow clicking outside the popup to close
-        overlay.addEventListener("mousedown", function (e) {
-          if (!frameContainer.contains(e.target)) {
-            document.body.removeChild(overlay);
-          }
-        });
-      };
-      document.getElementById("clearHistoryBtn").onclick = function () {
-        if (chatHistory.length > 0) {
-          if (confirm("Are you sure you want to clear all chat history? This action cannot be undone.")) {
-            chatHistory.length = 0; // Clear array
-            chatMessages.innerHTML = ""; // Clear UI
-            userInput.value = "";
-            autoResize(userInput); // Reset textarea height
+            // Remove typing indicator
+            const typingElem = document.getElementById("robot-typing");
+            if (typingElem) typingElem.remove();
+
+            // Add robot reply to history and UI
+            if (data && data.reply) {
+              chatHistory.push({ role: "assistant", content: data.reply });
+              appendMessage("robot", data.reply);
+            } else {
+              appendMessage("robot", "No reply from server.");
+            }
+          })
+          .catch((error) => {
+            console.error("Fetch error:", error); // Debug log
+            const typingElem = document.getElementById("robot-typing");
+            if (typingElem) typingElem.remove();
+            appendMessage("robot", "Error contacting server.");
+          })
+          .finally(() => {
+            waitingForResponse = false;
+            userInput.disabled = false;
+            sendButton.disabled = false;
+            sendButton.textContent = "Send";
             userInput.focus();
+          });
+      } else {
+        console.log("No message to send (empty)"); // Debug log
+      }
+    });
+    // Make closeSettingsModal globally accessible
+    window.closeSettingsModal = function () {
+      const overlay = document.getElementById('settingsOverlay');
+      if (overlay) {
+        document.body.removeChild(overlay);
+      }
+    }
+
+    // Set up settings button event listener
+    console.log("Setting up settings button event listener");
+    const settingsBtn = document.getElementById("settingsBtn");
+    console.log("Settings button element:", settingsBtn);
+
+    if (settingsBtn) {
+      settingsBtn.onclick = function () {
+        console.log("Settings button clicked"); // Debug log
+        try {
+          showSettingsModal();
+        } catch (error) {
+          console.error("Error showing settings modal:", error);
+        }
+      };
+      console.log("Settings button event listener attached"); // Debug log
+    } else {
+      console.error("Settings button not found in DOM"); // Debug log
+    }
+
+    function showSettingsModal() {
+      console.log("showSettingsModal called"); // Debug log
+
+      // Remove any existing modal first
+      const existingOverlay = document.getElementById('settingsOverlay');
+      if (existingOverlay) {
+        document.body.removeChild(existingOverlay);
+      }
+
+      // Create overlay
+      const overlay = document.createElement("div");
+      overlay.className = "settings-overlay";
+      overlay.id = "settingsOverlay";
+
+      // Create modal container
+      const modal = document.createElement("div");
+      modal.className = "settings-modal";
+
+      // Modal content
+      modal.innerHTML = `
+          <div class="settings-header">
+            <h2>Settings</h2>
+            <button class="close-btn" onclick="closeSettingsModal()">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <line x1="5" y1="5" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="15" y1="5" x2="5" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+          
+          <div class="settings-content">
+            <!-- Theme Settings -->
+            <div class="settings-section">
+              <h3>Theme</h3>
+              <div class="theme-controls">
+                <button id="lightThemeBtn" class="theme-btn">Light Theme</button>
+                <button id="darkThemeBtn" class="theme-btn">Dark Theme</button>
+              </div>
+              <div id="themeStatus" class="setting-status"></div>
+            </div>
+            
+            <!-- API Key Settings -->
+            <div class="settings-section">
+              <h3>DeepSeek API Key</h3>
+              <div class="input-group">
+                <input type="password" id="apiKeyInput" placeholder="Enter your API key..." />
+                <div class="button-group">
+                  <button id="saveApiKeyBtn" class="btn-primary">Save</button>
+                  <button id="clearApiKeyBtn" class="btn-secondary">Clear</button>
+                </div>
+              </div>
+              <div id="apiKeyStatus" class="setting-status"></div>
+            </div>
+            
+            <!-- System Prompt Settings -->
+            <div class="settings-section">
+              <h3>System Prompt</h3>
+              <div class="input-group">
+                <textarea id="systemPromptInput" placeholder="Enter custom system prompt..." rows="4"></textarea>
+                <div class="button-group">
+                  <button id="saveSystemPromptBtn" class="btn-primary">Save</button>
+                  <button id="clearSystemPromptBtn" class="btn-secondary">Clear</button>
+                </div>
+              </div>
+              <div id="systemPromptStatus" class="setting-status"></div>
+            </div>
+          </div>
+        `;
+
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+
+      console.log("Modal added to DOM"); // Debug log
+
+      // Initialize settings
+      initializeSettings();
+
+      // Close on overlay click
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) {
+          closeSettingsModal();
+        }
+      });
+
+      // Close on Escape key
+      document.addEventListener('keydown', function escapeHandler(e) {
+        if (e.key === 'Escape') {
+          closeSettingsModal();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      });
+    }
+
+    function closeSettingsModal() {
+      const overlay = document.getElementById('settingsOverlay');
+      if (overlay) {
+        document.body.removeChild(overlay);
+      }
+    }
+
+    function initializeSettings() {
+      console.log("initializeSettings called"); // Debug log
+
+      // Theme Manager - Simple implementation
+      window.ThemeManager = {
+        getCurrentTheme: function () {
+          return localStorage.getItem('theme') || 'light';
+        },
+        applyTheme: function (theme) {
+          document.documentElement.setAttribute('data-theme', theme);
+          localStorage.setItem('theme', theme);
+          // Dispatch custom event for theme change
+          window.dispatchEvent(new CustomEvent('themeChanged', { detail: theme }));
+        }
+      };
+
+      // Initialize theme on page load
+      window.ThemeManager.applyTheme(window.ThemeManager.getCurrentTheme());
+
+      // Theme management
+      const lightBtn = document.getElementById('lightThemeBtn');
+      const darkBtn = document.getElementById('darkThemeBtn');
+      const themeStatus = document.getElementById('themeStatus');
+
+      console.log("Theme buttons found:", lightBtn, darkBtn); // Debug log
+
+      // API Key elements
+      const apiKeyInput = document.getElementById('apiKeyInput');
+      const saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
+      const clearApiKeyBtn = document.getElementById('clearApiKeyBtn');
+      const apiKeyStatus = document.getElementById('apiKeyStatus');
+
+      // System Prompt elements
+      const systemPromptInput = document.getElementById('systemPromptInput');
+      const saveSystemPromptBtn = document.getElementById('saveSystemPromptBtn');
+      const clearSystemPromptBtn = document.getElementById('clearSystemPromptBtn');
+      const systemPromptStatus = document.getElementById('systemPromptStatus');
+
+      // Update theme UI
+      function updateThemeUI() {
+        const currentTheme = window.ThemeManager.getCurrentTheme();
+        if (lightBtn && darkBtn) {
+          lightBtn.classList.toggle('active', currentTheme === 'light');
+          darkBtn.classList.toggle('active', currentTheme === 'dark');
+        }
+        if (themeStatus) {
+          themeStatus.textContent = "Current theme: " + currentTheme;
+        }
+      }
+
+      // Theme event listeners
+      if (lightBtn) {
+        lightBtn.addEventListener('click', function () {
+          window.ThemeManager.applyTheme('light');
+          updateThemeUI();
+        });
+      }
+
+      if (darkBtn) {
+        darkBtn.addEventListener('click', function () {
+          window.ThemeManager.applyTheme('dark');
+          updateThemeUI();
+        });
+      }
+
+      // Initialize theme UI
+      updateThemeUI();
+
+      // Load saved values
+      const storedKey = localStorage.getItem('deepseek_api_key');
+      if (storedKey && apiKeyInput) {
+        apiKeyInput.value = storedKey;
+      }
+
+      const storedPrompt = localStorage.getItem('deepseek_system_prompt');
+      if (storedPrompt && systemPromptInput) {
+        systemPromptInput.value = storedPrompt;
+      }
+
+      // API Key handlers
+      if (saveApiKeyBtn) {
+        saveApiKeyBtn.onclick = function () {
+          if (apiKeyInput) {
+            localStorage.setItem('deepseek_api_key', apiKeyInput.value);
+            showStatus(apiKeyStatus, 'Saved!', 'success');
           }
-        } else {
+        };
+      }
+
+      if (clearApiKeyBtn) {
+        clearApiKeyBtn.onclick = function () {
+          localStorage.removeItem('deepseek_api_key');
+          if (apiKeyInput) {
+            apiKeyInput.value = '';
+          }
+          showStatus(apiKeyStatus, 'Cleared!', 'error');
+        };
+      }
+
+      // System Prompt handlers
+      if (saveSystemPromptBtn) {
+        saveSystemPromptBtn.onclick = function () {
+          if (systemPromptInput) {
+            localStorage.setItem('deepseek_system_prompt', systemPromptInput.value);
+            showStatus(systemPromptStatus, 'Saved!', 'success');
+          }
+        };
+      }
+
+      if (clearSystemPromptBtn) {
+        clearSystemPromptBtn.onclick = function () {
+          localStorage.removeItem('deepseek_system_prompt');
+          if (systemPromptInput) {
+            systemPromptInput.value = '';
+          }
+          showStatus(systemPromptStatus, 'Cleared!', 'error');
+        };
+      }
+
+      // Initialize theme UI
+      updateThemeUI();
+
+      console.log("Settings initialized"); // Debug log
+    }
+
+    function showStatus(element, message, type) {
+      element.textContent = message;
+      element.className = "setting-status " + type;
+      element.style.display = 'block';
+      setTimeout(() => {
+        element.style.display = 'none';
+      }, 2000);
+    }
+
+    document.getElementById("clearHistoryBtn").onclick = function () {
+      if (chatHistory.length > 0) {
+        if (confirm("Are you sure you want to clear all chat history? This action cannot be undone.")) {
           chatHistory.length = 0; // Clear array
           chatMessages.innerHTML = ""; // Clear UI
           userInput.value = "";
           autoResize(userInput); // Reset textarea height
           userInput.focus();
         }
-      };
-
-      // Focus input on page load
-      window.addEventListener('load', function() {
+      } else {
+        chatHistory.length = 0; // Clear array
+        chatMessages.innerHTML = ""; // Clear UI
+        userInput.value = "";
+        autoResize(userInput); // Reset textarea height
         userInput.focus();
-      });
-    </script>
-  </body>
+      }
+    };
+
+    // Focus input on page load
+    window.addEventListener('load', function () {
+      userInput.focus();
+    });
+  </script>
+</body>
+
 </html>

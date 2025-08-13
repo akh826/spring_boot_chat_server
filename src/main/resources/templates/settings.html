@@ -14,6 +14,17 @@
     <div class="content-wrapper">
       <div class="setting-container">
         <div class="setting-section">
+          <label for="themeToggle">Theme</label>
+          <div class="theme-selector">
+            <button id="lightThemeBtn" class="btn theme-btn active">☀️ Light</button>
+            <button id="darkThemeBtn" class="btn theme-btn">🌙 Dark</button>
+          </div>
+          <div class="setting-status" id="themeStatus">Theme saved!</div>
+        </div>
+
+        <hr class="setting-divider" />
+
+        <div class="setting-section">
           <label for="apiKeyInput">DeepSeek API Key</label>
           <input
             id="apiKeyInput"
@@ -42,9 +53,60 @@
           </div>
           <div class="setting-status" id="systemPromptStatus">Saved!</div>
         </div>
+
+        <hr class="setting-divider" />
+
+        <div class="setting-section">
+          <label>Application Control</label>
+          <div class="btn-group">
+            <button id="hardRefreshBtn" class="btn btn-warning">🔄 Hard Refresh</button>
+          </div>
+          <div class="setting-status" id="refreshStatus">Page refreshed!</div>
+        </div>
       </div>
     </div>
     <script>
+      // Theme Management
+      const lightThemeBtn = document.getElementById("lightThemeBtn");
+      const darkThemeBtn = document.getElementById("darkThemeBtn");
+      const themeStatus = document.getElementById("themeStatus");
+
+      // Load saved theme or default to light
+      const savedTheme = localStorage.getItem("theme") || "light";
+      applyTheme(savedTheme);
+
+      function applyTheme(theme) {
+        document.documentElement.setAttribute("data-theme", theme);
+        
+        // Update button states
+        lightThemeBtn.classList.toggle("active", theme === "light");
+        darkThemeBtn.classList.toggle("active", theme === "dark");
+        
+        // Save to localStorage
+        localStorage.setItem("theme", theme);
+        
+        // Show status message
+        showThemeStatus("Theme applied successfully!");
+      }
+
+      function showThemeStatus(message) {
+        themeStatus.textContent = message;
+        themeStatus.className = "setting-status success";
+        setTimeout(() => {
+          themeStatus.style.display = "none";
+        }, 2000);
+      }
+
+      // Theme button event listeners
+      lightThemeBtn.addEventListener("click", () => {
+        applyTheme("light");
+      });
+
+      darkThemeBtn.addEventListener("click", () => {
+        applyTheme("dark");
+      });
+
+      // API Key and System Prompt Management
       const apiKeyInput = document.getElementById("apiKeyInput");
       const saveApiKeyBtn = document.getElementById("saveApiKeyBtn");
       const clearApiKeyBtn = document.getElementById("clearApiKeyBtn");
@@ -111,6 +173,66 @@
           systemPromptStatus.style.display = "none";
         }, 1200);
       };
+
+      // Theme management using global ThemeManager
+      const lightBtn = document.getElementById('lightTheme');
+      const darkBtn = document.getElementById('darkTheme');
+      const statusElement = document.getElementById('themeStatus');
+      
+      // Update UI based on current theme
+      function updateThemeUI() {
+          const currentTheme = window.ThemeManager.getCurrentTheme();
+          
+          lightBtn.classList.toggle('active', currentTheme === 'light');
+          darkBtn.classList.toggle('active', currentTheme === 'dark');
+          
+          statusElement.textContent = `Current theme: ${currentTheme}`;
+      }
+      
+      // Set up event listeners
+      lightBtn.addEventListener('click', function() {
+          window.ThemeManager.applyTheme('light');
+          localStorage.setItem('theme', 'light');
+          updateThemeUI();
+      });
+      
+      darkBtn.addEventListener('click', function() {
+          window.ThemeManager.applyTheme('dark');
+          localStorage.setItem('theme', 'dark');
+          updateThemeUI();
+      });
+      
+      // Listen for theme changes from other sources
+      window.addEventListener('themeChanged', updateThemeUI);
+      
+      // Initialize UI
+      updateThemeUI();
+
+      // Hard Refresh Button
+      const hardRefreshBtn = document.getElementById("hardRefreshBtn");
+      const refreshStatus = document.getElementById("refreshStatus");
+
+      hardRefreshBtn.addEventListener("click", function() {
+        // Show status message
+        refreshStatus.textContent = "Performing hard refresh...";
+        refreshStatus.style.color = "#ffc107";
+        refreshStatus.style.display = "block";
+        
+        // Perform hard refresh after a short delay to show the message
+        setTimeout(() => {
+          // Clear browser cache and reload
+          if ('caches' in window) {
+            caches.keys().then(function(names) {
+              for (let name of names) {
+                caches.delete(name);
+              }
+            });
+          }
+          
+          // Force reload with cache bypass
+          window.location.reload(true);
+        }, 500);
+      });
     </script>
   </body>
 </html>

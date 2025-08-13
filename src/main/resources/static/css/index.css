@@ -3,12 +3,12 @@
 /* Hero Section with Interactive Background */
 .hero {
     min-height: calc(100vh - 56px);
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--hero-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    color: white;
+    color: var(--hero-text, white);
     position: relative;
     overflow: hidden;
 }
@@ -26,7 +26,7 @@
 /* Floating Particles */
 .particle {
     position: absolute;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--particle-bg, rgba(255, 255, 255, 0.1));
     border-radius: 50%;
     pointer-events: none;
     animation: float 6s infinite ease-in-out;
@@ -206,51 +206,51 @@
 }
 
 .index-btn-primary {
-    background: #007bff;
-    color: white;
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+    background: var(--accent-color);
+    color: var(--white);
+    box-shadow: var(--shadow-accent);
 }
 
 .index-btn-primary:hover {
-    background: #0056b3;
-    color: white;
+    background: var(--accent-hover-color);
+    color: var(--white);
     text-decoration: none;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+    box-shadow: var(--shadow-accent-hover);
 }
 
 .index-btn-secondary {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: var(--glass-bg);
+    color: var(--hero-text, white);
+    border: 2px solid var(--glass-border);
     backdrop-filter: blur(10px);
 }
 
 .index-btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.3);
-    color: white;
+    background: var(--glass-bg-hover);
+    color: var(--hero-text, white);
     text-decoration: none;
     transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.5);
+    border-color: var(--glass-border-hover);
 }
 
 /* Features Section */
 .features {
     padding: 80px 20px;
-    background: #f8f9fa;
+    background: var(--features-bg);
 }
 
 .features h2 {
     text-align: center;
     font-size: 2.5rem;
     margin-bottom: 20px;
-    color: #333;
+    color: var(--text-primary);
 }
 
 .features-subtitle {
     text-align: center;
     font-size: 1.2rem;
-    color: #666;
+    color: var(--text-secondary);
     margin-bottom: 60px;
 }
 
@@ -262,30 +262,30 @@
 }
 
 .feature-card {
-    background: white;
+    background: var(--card-bg);
     padding: 40px 30px;
     border-radius: 15px;
     text-align: center;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-md);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .feature-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-lg);
 }
 
 .feature-icon {
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, #007bff, #0056b3);
+    background: var(--icon-gradient);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 20px;
     font-size: 24px;
-    color: white;
+    color: var(--white);
     animation: float 3s ease-in-out infinite;
 }
 

@@ -2,13 +2,14 @@
 
 .top-nav {
     width: 100%;
-    background: #007bff;
+    background: var(--nav-bg);
     padding: 12px 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 8px var(--shadow-color);
     position: fixed;
     top: 0;
     left: 0;
     z-index: 1000;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .nav-container {
@@ -19,16 +20,17 @@
 }
 
 .nav-brand {
-    color: #fff;
+    color: var(--nav-text);
     font-size: 22px;
     font-weight: bold;
     letter-spacing: 1px;
     padding: 2px;
     text-decoration: none;
+    transition: color 0.3s ease;
 }
 
 .nav-brand:hover {
-    color: #fff;
+    color: var(--nav-text);
     text-decoration: none;
 }
 
@@ -39,13 +41,19 @@
 }
 
 .nav-link {
-    color: #fff;
+    color: var(--nav-text);
     text-decoration: none;
     margin-right: 24px;
     font-size: 16px;
     padding: 8px 12px;
     border-radius: 4px;
     transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--nav-text);
+    background: var(--nav-hover);
+    text-decoration: none;
 }
 
 .nav-link:hover {
